@@ -34,17 +34,15 @@ public class MapGenerator : MonoBehaviour
 		for (int i = 0; i <= Size.x; i++) {
 			for (int p = 0; p <= Size.y; p++) {
 				int spotHeight = (int)PerlinNoise (i, p);
-				//for (int j = spotHeight; j >= 0; j--) {
-					//if (Random.Range (0, 4) % 2 != 0 || j == spotHeight) {
+				for (int j = spotHeight; j >= 0; j--) {
 						GameObject box = Instantiate (groundUnit) as GameObject;
-						float col = 256 % (Mathf.Max (spotHeight, 1));	
+						float col = .4f * j;	
 						box.GetComponent<MeshRenderer> ().material.SetColor ("_Color", new Color (col, col, col));
 						float dimensions = box.GetComponent<Renderer> ().bounds.extents.x * 2;
-						box.transform.position = new Vector3 (i * dimensions, spotHeight * dimensions, p * dimensions);
+						box.transform.position = new Vector3 (i * dimensions, j * dimensions, p * dimensions);
 						box.transform.parent = root.transform;
-					
-					//}
-				//}
+						box.GetComponent<Rigidbody> ().drag = 4 + 2 * (Height - j); 
+				}
 			}
 		}
 		root.transform.position = Vector3.zero;
