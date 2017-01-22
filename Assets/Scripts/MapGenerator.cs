@@ -41,7 +41,7 @@ public class MapGenerator : MonoBehaviour
 						float dimensions = box.GetComponent<Renderer> ().bounds.extents.x * 2;
 						box.transform.position = new Vector3 (i * dimensions, j * dimensions, p * dimensions);
 						box.transform.parent = root.transform;
-						box.GetComponent<Rigidbody> ().drag = 2 + 2 * (Height - j); 
+						box.GetComponent<Rigidbody> ().drag = 1f + (Height - j); 
 				}
 			}
 		}

@@ -36,7 +36,9 @@ public class GameStateManager : MonoBehaviour {
             {
                 GameObject go = Instantiate(playerPrefab, new Vector3(2 * i, 10, 2 * i), Quaternion.identity) as GameObject;
                 go.name = "Player " + i;
-                go.GetComponent<Renderer>().material.SetColor("_Color", new Color(Random.insideUnitCircle.x, Random.insideUnitCircle.x, Random.insideUnitCircle.x));
+				Color color = new Color (Random.insideUnitCircle.x, Random.insideUnitCircle.x, Random.insideUnitCircle.x);
+                go.GetComponent<Renderer>().material.SetColor("_Color", color);
+				go.GetComponentInChildren<Light>().color = color;
                 go.GetComponent<PlayerControl>().index = i;
                 players.Add(go);
             }
@@ -78,7 +80,7 @@ public class GameStateManager : MonoBehaviour {
         {
             foreach (GameObject player in players)
             {
-                if (Vector3.Distance(transform.position, player.transform.position) > 75)
+				if (player.transform.position.y < -75)
                 {
                     //player.GetComponent<PlayerControl>().Reset();
 					var playerRigidBody = player.GetComponent<Rigidbody>();
