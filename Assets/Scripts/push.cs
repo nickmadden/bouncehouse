@@ -4,62 +4,39 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class PhysicsGun : MonoBehaviour
+public class push : MonoBehaviour
 {
-
 	public float blastHeightModifier = 4.0f;
-	public float maxPower = 6.0f;
+	public float maxPower = 10.0f;
 	private float range;
 	private float power;
 	private int charging;
 	Text chargeText;
+	private Transform shape;
 	RigidbodyFPSController player;
 	Transform aim;
 
-	string pushAxis;
-	string pullAxis;
-
 	void Start ()
 	{
-
 		chargeText = GameObject.Find ("Charge").GetComponent<Text> ();
 		player = GetComponentInParent<RigidbodyFPSController> ();
 		aim = GameObject.Find ("AimDirection").GetComponent<Transform> ();
-
-		if (GameStateManager.joysticksCount != 0) {
-			pushAxis = "FireP" + transform.parent.GetComponent<PlayerControl> ().index;
-			pullAxis = "AltFireP" + transform.parent.GetComponent<PlayerControl> ().index;
-		} else {
-			pushAxis = "FireP0";
-			pullAxis = "AltFireP0";
-		}
 	}
 
 	void Update ()
 	{
 		chargeText.text = power.ToString ();
-		if (charging != 0 && Mathf.Abs (power) < maxPower) {
-			power += charging * maxPower / 25;
-			range += maxPower / 25;
+		if (charging != 0 && Mathf.Abs(power) < maxPower) {
+			power += charging*maxPower/25;
+			range += maxPower/25;
 		}
-
-		if (GameStateManager.joysticksCount != 0 && Input.GetAxis (pushAxis) < .5f) {
-			charging = 1;
-			Debug.Log ("left down");
-		} else if (Input.GetButtonDown (pushAxis)) {
-			Debug.Log ("left down");
+		if (Input.GetButtonDown ("Fire1")) {
 			charging = 1;
 		}
-
-		if (GameStateManager.joysticksCount != 0 && Input.GetAxis (pullAxis) < .5f) {
-			Debug.Log ("right down");
-			charging = -1;
-		} else if (Input.GetButtonDown (pullAxis)) {
-			Debug.Log ("right down");
+		if (Input.GetButtonDown ("Fire2")) {
 			charging = -1;
 		}
-
-		if (Input.GetAxis (pushAxis) == 0 || Input.GetButtonUp (pushAxis) || Input.GetAxis (pullAxis) == 0 || Input.GetButtonUp (pullAxis)) {
+		if (Input.GetButtonUp ("Fire1") || Input.GetButtonUp("Fire2")) {
 			Collider[] hitColliders = Physics.OverlapSphere (transform.position, range * 2f);
 			foreach (Collider c in hitColliders) {
 				Rigidbody rb = c.GetComponent<Rigidbody> ();
@@ -79,7 +56,6 @@ public class PhysicsGun : MonoBehaviour
 							dir.x = Mathf.Clamp (dir.x, -0.5f, 0.5f);
 							dir.z = Mathf.Clamp (dir.z, -0.5f, 0.5f);
 						} 
-						Debug.Log ("player moved");
 						rb.AddForce (dir * power * blastHeightModifier, ForceMode.VelocityChange);
 					}
 				}

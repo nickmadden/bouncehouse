@@ -25,7 +25,7 @@ public class RigidbodyFPSController : MonoBehaviour
 		if(GameStateManager.joysticksCount == 0)
 			playerNumber = 0;
 		else
-		playerNumber = GetComponent<PlayerControl> ().index;
+			playerNumber = GetComponent<PlayerControl> ().index;
 		moveHorizontalAxis = "moveHorizontalAxisP" + playerNumber;
 		moveVerticalAxis = "moveVerticalAxisP" + playerNumber;
 		jumpButton = "JumpP" + playerNumber;

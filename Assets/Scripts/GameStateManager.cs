@@ -7,6 +7,7 @@ public class GameStateManager : MonoBehaviour {
     private Object playerPrefab;
     PlayerControl player1, player2, player3, player4;
     List<GameObject> players;
+	private Color[] colors = {Color.blue, Color.red, Color.green, Color.magenta};
 
 	public static int joysticksCount;
 
@@ -14,39 +15,49 @@ public class GameStateManager : MonoBehaviour {
     void Start () {
         playerPrefab = Resources.Load("Prefabs/Player");
         players = new List<GameObject>();
+        GetComponent<MapGenerator>().Generate();
+    }
 
-		joysticksCount = 0;
+    public void NotifyReady()
+    {
+        LoadPlayers();
+    }
 
-		foreach (string joystickName in Input.GetJoystickNames())
-			if (joystickName != "" && joystickName != null && joystickName != "Object")
-				joysticksCount++;
+    private void LoadPlayers()
+    {
+        joysticksCount = 0;
 
-		if (joysticksCount == 0)
+        foreach (string joystickName in Input.GetJoystickNames())
+            if (joystickName != "" && joystickName != null && joystickName != "Object")
+                joysticksCount++;
+
+        if (joysticksCount == 0)
         {
             GameObject go = Instantiate(playerPrefab, new Vector3(2, 10, 2), Quaternion.identity) as GameObject;
-			Color color = new Color (Random.insideUnitCircle.x, Random.insideUnitCircle.x, Random.insideUnitCircle.x);
             go.name = "Player 1";
-            go.GetComponent<Renderer>().material.SetColor("_Color", color);
-			go.GetComponentInChildren<Light>().color = color;
+            go.GetComponent<Renderer>().material.SetColor("_Color", colors[0]);
+			go.GetComponentInChildren<Light>().color = colors[0];
             go.GetComponent<PlayerControl>().index = 1;
+			go.GetComponent<PlayerControl> ().isAlive = true;
             players.Add(go);
-        } else
+        }
+        else
         {
-			for (int i = 1; i <= joysticksCount; i++)
+            for (int i = 1; i <= joysticksCount; i++)
             {
                 GameObject go = Instantiate(playerPrefab, new Vector3(2 * i, 10, 2 * i), Quaternion.identity) as GameObject;
                 go.name = "Player " + i;
-				Color color = new Color (Random.insideUnitCircle.x, Random.insideUnitCircle.x, Random.insideUnitCircle.x);
-                go.GetComponent<Renderer>().material.SetColor("_Color", color);
-				go.GetComponentInChildren<Light>().color = color;
+				go.GetComponent<Renderer>().material.SetColor("_Color", colors[i-1]);
+				go.GetComponentInChildren<Light>().color = colors[i-1];
                 go.GetComponent<PlayerControl>().index = i;
+				go.GetComponent<PlayerControl>().isAlive = true;
                 players.Add(go);
             }
         }
 
-		AdjustViewports(joysticksCount);
+        AdjustViewports(joysticksCount);
         StartCoroutine(AreYouAlive());
-	}
+    }
 
     void AdjustViewports(int numPlayers)
     {
@@ -76,23 +87,27 @@ public class GameStateManager : MonoBehaviour {
 
     IEnumerator AreYouAlive()
     {
+		int loserIndex = 0;
         while(true)
         {
             foreach (GameObject player in players)
             {
-				if (player.transform.position.y < -75)
+                if (player.transform.position.y < -75)
                 {
                     //player.GetComponent<PlayerControl>().Reset();
-					var playerRigidBody = player.GetComponent<Rigidbody>();
-					playerRigidBody.constraints = RigidbodyConstraints.FreezeAll;
-					var camera = player.GetComponentInChildren<Camera>();
-					camera.clearFlags = CameraClearFlags.SolidColor;
-					camera.backgroundColor = Color.red;
+					player.GetComponent<PlayerControl>().IsLoser();
+					loserIndex++;
                 }
                 yield return null;
             }
+			if (players.Count - loserIndex == 1 && players.Count > 1) {
+				foreach (GameObject player in players) {
+					if (player.GetComponent<PlayerControl>().isAlive == true) {
+						player.GetComponent<PlayerControl>().IsWinner();
+					};
+				}
+			}
             yield return new WaitForSeconds(1);
         }
     }
-
 }
